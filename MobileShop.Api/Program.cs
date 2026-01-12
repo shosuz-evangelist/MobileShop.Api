@@ -4,11 +4,13 @@ using MobileShop.Api.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 // Zeabur の PORT 環境変数を読み取る
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
 
 // Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 // Add DbContext
@@ -17,13 +19,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// Swagger を本番環境でも有効化
+app.MapOpenApi();
+app.UseSwaggerUI(options =>
 {
-    app.MapOpenApi();
-}
-
-// app.UseHttpsRedirection(); ← この行を削除
+    options.SwaggerEndpoint("/openapi/v1.json", "MobileShop API v1");
+});
 
 var summaries = new[]
 {

@@ -3,6 +3,10 @@ using MobileShop.Api.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Zeabur の PORT 環境変数を読み取る
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();

@@ -1,4 +1,4 @@
 {
   "plan_type": "dotnet",
-  "dotnet_project": "MobileShop.Api/MobileShop.Api.csproj"
+  "dotnet_version": "9.0"
 }

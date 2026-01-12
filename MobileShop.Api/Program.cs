@@ -11,7 +11,8 @@ if (!string.IsNullOrEmpty(port))
 }
 
 // Add services to the container.
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -20,11 +21,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 var app = builder.Build();
 
 // Swagger を本番環境でも有効化
-app.MapOpenApi();
-app.UseSwaggerUI(options =>
-{
-    options.SwaggerEndpoint("/openapi/v1.json", "MobileShop API v1");
-});
+app.UseSwagger();
+app.UseSwaggerUI();
 
 var summaries = new[]
 {

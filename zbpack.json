@@ -1,4 +1,4 @@
 {
   "plan_type": "dotnet",
-  "dotnet_version": "9.0"
+  "dotnet_submodule_dir": "MobileShop.Api"
 }

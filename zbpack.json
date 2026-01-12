@@ -1,1 +1,4 @@
-{"plan_type":"dotnet"}
+{
+  "plan_type": "dotnet",
+  "dotnet_project": "MobileShop.Api/MobileShop.Api.csproj"
+}

@@ -48,14 +48,10 @@ if (connectionString.StartsWith("postgres://") || connectionString.StartsWith("p
     var userInfo = uri.UserInfo.Split(':');
     var host = uri.Host;
     
-    // Zeabur の内部ネットワーク用にサフィックスを追加（必要に応じて）
-    if (!host.Contains(".") && !host.Contains("localhost"))
-    {
-        host = $"{host}.zeabur.internal";
-        Console.WriteLine($"🔧 Added .zeabur.internal suffix: {host}");
-    }
+    // Zeaburではサフィックスを追加しない（内部DNSをそのまま使用）
+    Console.WriteLine($"🔧 Original host: {host}");
     
-    connectionString = $"Host={host};Port={uri.Port};Database={uri.AbsolutePath.Trim('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Prefer;Trust Server Certificate=true;Integrated Security=false;Include Error Detail=true";
+    connectionString = $"Host={host};Port={uri.Port};Database={uri.AbsolutePath.Trim('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Disable;Include Error Detail=true";
     Console.WriteLine($"🔄 Full connection string: Host={host}, Port={uri.Port}, Database={uri.AbsolutePath.Trim('/')}, Username={userInfo[0]}");
 }
 
@@ -81,21 +77,17 @@ using (var scope = app.Services.CreateScope())
         logger.LogInformation("Starting database migration...");
         var context = services.GetRequiredService<ApplicationDbContext>();
         
-        // データベース接続をテスト
+        // データベース接続を実際に試行
         try
         {
-            var canConnect = await context.Database.CanConnectAsync();
-            logger.LogInformation($"Database connection test: {(canConnect ? "SUCCESS" : "FAILED")}");
+            logger.LogInformation("Attempting to open database connection...");
+            await context.Database.OpenConnectionAsync();
+            logger.LogInformation("✅ Database connection SUCCESS!");
+            await context.Database.CloseConnectionAsync();
             
-            if (!canConnect)
-            {
-                logger.LogError("Cannot connect to database. Migration aborted.");
-            }
-            else
-            {
-                await context.Database.MigrateAsync();
-                logger.LogInformation("Database migration completed successfully.");
-            }
+            logger.LogInformation("Running migrations...");
+            await context.Database.MigrateAsync();
+            logger.LogInformation("✅ Database migration completed successfully.");
         }
         catch (Exception connEx)
         {
@@ -104,6 +96,7 @@ using (var scope = app.Services.CreateScope())
             if (connEx.InnerException != null)
             {
                 logger.LogError("Inner exception: {InnerMessage}", connEx.InnerException.Message);
+                logger.LogError("Inner exception type: {InnerType}", connEx.InnerException.GetType().FullName);
             }
         }
     }

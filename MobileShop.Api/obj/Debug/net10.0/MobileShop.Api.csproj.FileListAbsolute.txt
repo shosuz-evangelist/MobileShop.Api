@@ -178,3 +178,6 @@
 /workspaces/MobileShop.Api/MobileShop.Api/obj/Debug/net10.0/MobileShop.Api.pdb
 /workspaces/MobileShop.Api/MobileShop.Api/obj/Debug/net10.0/MobileShop.Api.genruntimeconfig.cache
 /workspaces/MobileShop.Api/MobileShop.Api/obj/Debug/net10.0/ref/MobileShop.Api.dll
+/workspaces/MobileShop.Api/MobileShop.Api/bin/Debug/net10.0/Swashbuckle.AspNetCore.Swagger.dll
+/workspaces/MobileShop.Api/MobileShop.Api/bin/Debug/net10.0/Swashbuckle.AspNetCore.SwaggerGen.dll
+/workspaces/MobileShop.Api/MobileShop.Api/bin/Debug/net10.0/Swashbuckle.AspNetCore.SwaggerUI.dll

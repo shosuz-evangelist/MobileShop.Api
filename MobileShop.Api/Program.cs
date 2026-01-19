@@ -46,8 +46,17 @@ if (connectionString.StartsWith("postgres://") || connectionString.StartsWith("p
 {
     var uri = new Uri(connectionString);
     var userInfo = uri.UserInfo.Split(':');
-    connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.Trim('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Prefer;Trust Server Certificate=true;Integrated Security=false;Include Error Detail=true";
-    Console.WriteLine($"🔄 Converted to Npgsql format: Host={uri.Host}, Port={uri.Port}, Database={uri.AbsolutePath.Trim('/')}");
+    var host = uri.Host;
+    
+    // Zeabur の内部ネットワーク用にサフィックスを追加（必要に応じて）
+    if (!host.Contains(".") && !host.Contains("localhost"))
+    {
+        host = $"{host}.zeabur.internal";
+        Console.WriteLine($"🔧 Added .zeabur.internal suffix: {host}");
+    }
+    
+    connectionString = $"Host={host};Port={uri.Port};Database={uri.AbsolutePath.Trim('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Prefer;Trust Server Certificate=true;Integrated Security=false;Include Error Detail=true";
+    Console.WriteLine($"🔄 Full connection string: Host={host}, Port={uri.Port}, Database={uri.AbsolutePath.Trim('/')}, Username={userInfo[0]}");
 }
 
 // Add services to the container.
@@ -73,28 +82,35 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<ApplicationDbContext>();
         
         // データベース接続をテスト
-        var canConnect = await context.Database.CanConnectAsync();
-        logger.LogInformation($"Database connection test: {(canConnect ? "SUCCESS" : "FAILED")}");
-        
-        if (!canConnect)
+        try
         {
-            logger.LogError("Cannot connect to database. Migration aborted.");
+            var canConnect = await context.Database.CanConnectAsync();
+            logger.LogInformation($"Database connection test: {(canConnect ? "SUCCESS" : "FAILED")}");
+            
+            if (!canConnect)
+            {
+                logger.LogError("Cannot connect to database. Migration aborted.");
+            }
+            else
+            {
+                await context.Database.MigrateAsync();
+                logger.LogInformation("Database migration completed successfully.");
+            }
         }
-        else
+        catch (Exception connEx)
         {
-            await context.Database.MigrateAsync();
-            logger.LogInformation("Database migration completed successfully.");
+            logger.LogError(connEx, "❌ Database connection failed: {Message}", connEx.Message);
+            logger.LogError("Connection error type: {Type}", connEx.GetType().FullName);
+            if (connEx.InnerException != null)
+            {
+                logger.LogError("Inner exception: {InnerMessage}", connEx.InnerException.Message);
+            }
         }
     }
     catch (Exception ex)
     {
         logger.LogError(ex, "An error occurred while migrating the database: {Message}", ex.Message);
         logger.LogError("Inner exception: {InnerException}", ex.InnerException?.Message);
-        // 開発環境以外ではアプリケーションを停止
-        if (!app.Environment.IsDevelopment())
-        {
-            throw;
-        }
     }
 }
 

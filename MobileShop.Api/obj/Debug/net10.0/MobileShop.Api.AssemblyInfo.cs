@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MobileShop.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+12c5b8190584d3b63044fb4e0428fefc902b8fc9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5ff259f8db0fb38025666396f38db521ca73acdf")]
 [assembly: System.Reflection.AssemblyProductAttribute("MobileShop.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MobileShop.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

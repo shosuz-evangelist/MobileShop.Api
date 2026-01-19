@@ -41,53 +41,67 @@ public class ProductsController : ControllerBase
 
     // POST: api/products
     [HttpPost]
-    public async Task<ActionResult<Product>> CreateProduct(Product product)
+    public async Task<ActionResult<Product>> CreateProduct(CreateProductDto dto)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        product.CreatedAt = DateTime.UtcNow;
-        _context.Products.Add(product);
-        await _context.SaveChangesAsync();
+        try
+        {
+            var product = new Product
+            {
+                Name = dto.Name,
+                Price = dto.Price,
+                Description = dto.Description,
+                ImageUrl = dto.ImageUrl,
+                CreatedAt = DateTime.UtcNow
+            };
 
-        return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating product");
+            return StatusCode(500, new { message = "An error occurred while creating the product.", error = ex.Message });
+        }
     }
 
     // PUT: api/products/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateProduct(int id, Product product)
+    public async Task<IActionResult> UpdateProduct(int id, UpdateProductDto dto)
     {
-        if (id != product.Id)
-        {
-            return BadRequest(new { message = "ID mismatch." });
-        }
-
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        _context.Entry(product).State = EntityState.Modified;
-
         try
         {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!await ProductExists(id))
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
             {
                 return NotFound(new { message = $"Product with ID {id} not found." });
             }
-            else
-            {
-                throw;
-            }
-        }
 
-        return NoContent();
+            product.Name = dto.Name;
+            product.Price = dto.Price;
+            product.Description = dto.Description;
+            product.ImageUrl = dto.ImageUrl;
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating product {ProductId}", id);
+            return StatusCode(500, new { message = "An error occurred while updating the product.", error = ex.Message });
+        }
     }
 
     // DELETE: api/products/5

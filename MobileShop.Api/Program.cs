@@ -77,46 +77,46 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 var app = builder.Build();
 
-// Migration の自動実行
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var logger = services.GetRequiredService<ILogger<Program>>();
-    
-    try
-    {
-        logger.LogInformation("Starting database migration...");
-        var context = services.GetRequiredService<ApplicationDbContext>();
-        
-        // データベース接続を実際に試行
-        try
-        {
-            logger.LogInformation("Attempting to open database connection...");
-            context.Database.OpenConnection();
-            logger.LogInformation("✅ Database connection SUCCESS!");
-            context.Database.CloseConnection();
-            
-            logger.LogInformation("Running migrations...");
-            context.Database.Migrate();
-            logger.LogInformation("✅ Database migration completed successfully.");
-        }
-        catch (Exception connEx)
-        {
-            logger.LogError(connEx, "❌ Database connection failed: {Message}", connEx.Message);
-            logger.LogError("Connection error type: {Type}", connEx.GetType().FullName);
-            if (connEx.InnerException != null)
-            {
-                logger.LogError("Inner exception: {InnerMessage}", connEx.InnerException.Message);
-                logger.LogError("Inner exception type: {InnerType}", connEx.InnerException.GetType().FullName);
-            }
-        }
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "An error occurred while migrating the database: {Message}", ex.Message);
-        logger.LogError("Inner exception: {InnerException}", ex.InnerException?.Message);
-    }
-}
+// // Migration の自動実行
+// using (var scope = app.Services.CreateScope())
+// {
+//     var services = scope.ServiceProvider;
+//     var logger = services.GetRequiredService<ILogger<Program>>();
+//     
+//     try
+//     {
+//         logger.LogInformation("Starting database migration...");
+//         var context = services.GetRequiredService<ApplicationDbContext>();
+//         
+//         // データベース接続を実際に試行
+//         try
+//         {
+//             logger.LogInformation("Attempting to open database connection...");
+//             context.Database.OpenConnection();
+//             logger.LogInformation("✅ Database connection SUCCESS!");
+//             context.Database.CloseConnection();
+//             
+//             logger.LogInformation("Running migrations...");
+//             context.Database.Migrate();
+//             logger.LogInformation("✅ Database migration completed successfully.");
+//         }
+//         catch (Exception connEx)
+//         {
+//             logger.LogError(connEx, "❌ Database connection failed: {Message}", connEx.Message);
+//             logger.LogError("Connection error type: {Type}", connEx.GetType().FullName);
+//             if (connEx.InnerException != null)
+//             {
+//                 logger.LogError("Inner exception: {InnerMessage}", connEx.InnerException.Message);
+//                 logger.LogError("Inner exception type: {InnerType}", connEx.InnerException.GetType().FullName);
+//             }
+//         }
+//     }
+//     catch (Exception ex)
+//     {
+//         logger.LogError(ex, "An error occurred while migrating the database: {Message}", ex.Message);
+//         logger.LogError("Inner exception: {InnerException}", ex.InnerException?.Message);
+//     }
+// }
 
 // Swagger を本番環境でも有効化
 app.UseSwagger();

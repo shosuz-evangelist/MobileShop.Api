@@ -92,12 +92,12 @@ using (var scope = app.Services.CreateScope())
         try
         {
             logger.LogInformation("Attempting to open database connection...");
-            await context.Database.OpenConnectionAsync();
+            context.Database.OpenConnection();
             logger.LogInformation("✅ Database connection SUCCESS!");
-            await context.Database.CloseConnectionAsync();
+            context.Database.CloseConnection();
             
             logger.LogInformation("Running migrations...");
-            await context.Database.MigrateAsync();
+            context.Database.Migrate();
             logger.LogInformation("✅ Database migration completed successfully.");
         }
         catch (Exception connEx)
